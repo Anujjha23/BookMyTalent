@@ -1,0 +1,15 @@
+{
+  "name": "artwave",
+  "version": "1.0.0",
+  "description": "ARTWAVE — Artist Booking Agency Platform",
+  "private": true,
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npm run dev",
+    "install:backend": "cd backend && npm install",
+    "setup": "npm run install:backend && echo '✅ ARTWAVE ready. Run: npm start'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

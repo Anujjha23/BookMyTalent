@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARTWAVE — Discover & Book Independent Artists</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   RESET & ROOT
+════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+:root {
+  --void: #080810;
+  --deep: #0e0e1a;
+  --surface: #13131f;
+  --raised: #1a1a2e;
+  --border: rgba(255,255,255,0.07);
+  --border-gold: rgba(212,175,95,0.3);
+  --cream: #f0ebe0;
+  --muted: rgba(240,235,224,0.45);
+  --gold: #d4af5f;
+  --gold-bright: #f0c84a;
+  --ember: #ff5533;
+  --teal: #2dd4bf;
+  --font-display: 'Cormorant Garamond', serif;
+  --font-ui: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --radius: 14px;
+  --shadow-lg: 0 24px 80px rgba(0,0,0,0.7);
+}
+
+body {
+  background: var(--void);
+  color: var(--cream);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* Custom cursor */
+body::after {
+  content: '';
+  position: fixed;
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .2s, height .2s, opacity .2s;
+  top: var(--cy, -100px);
+  left: var(--cx, -100px);
+}
+
+/* PAGE SYSTEM */
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ════════════════════════════════════════
+   NAV
+════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 3rem;
+  background: rgba(8,8,16,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: padding .3s;
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.7rem; font-weight: 700;
+  color: var(--gold); letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.nav-logo span { color: var(--ember); font-style: italic; }
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 0.83rem; letter-spacing: 0.08em; text-transform: uppercase;
+  transition: color .2s; font-weight: 600;
+}
+.nav-links a:hover, .nav-links a.active-link { color: var(--cream); }
+.nav-right { display: flex; gap: 0.8rem; align-items: center; }
+.btn-nav {
+  padding: 0.5rem 1.3rem; border-radius: 2rem;
+  font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; cursor: pointer; transition: all .2s;
+  font-family: var(--font-ui);
+}
+.btn-ghost-nav { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.btn-ghost-nav:hover { border-color: var(--gold); color: var(--gold); }
+.btn-gold { background: var(--gold); border: none; color: var(--void); }
+.btn-gold:hover { background: var(--gold-bright); transform: translateY(-2px); }
+
+/* ════════════════════════════════════════
+   TYPOGRAPHY UTILS
+════════════════════════════════════════ */
+.display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  font-weight: 700; line-height: 0.95;
+}
+.display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 700; line-height: 1.05;
+}
+.display-md {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 600; line-height: 1.15;
+}
+em { color: var(--gold); font-style: italic; }
+.ember { color: var(--ember); }
+.muted { color: var(--muted); }
+.mono { font-family: var(--font-mono); font-size: 0.78rem; }
+
+/* ════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.85rem 2rem; border-radius: 3rem;
+  font-family: var(--font-ui); font-weight: 700;
+  font-size: 0.88rem; letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: all .25s; text-decoration: none; border: none;
+}
+.btn-primary { background: var(--ember); color: #fff; box-shadow: 0 4px 24px rgba(255,85,51,0.35); }
+.btn-primary:hover { background: #ff7755; transform: translateY(-3px); box-shadow: 0 10px 40px rgba(255,85,51,0.45); }
+.btn-secondary { background: var(--gold); color: var(--void); }
+.btn-secondary:hover { background: var(--gold-bright); transform: translateY(-3px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--cream); }
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm { padding: 0.5rem 1.2rem; font-size: 0.75rem; }
+
+/* ════════════════════════════════════════
+   SECTION LAYOUT
+════════════════════════════════════════ */
+.section { padding: 6rem 3rem; }
+.section-inner { max-width: 1280px; margin: 0 auto; }
+.section-eyebrow {
+  font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ember); margin-bottom: 0.8rem; font-weight: 700;
+}
+.section-divider {
+  width: 48px; height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin: 1.2rem 0;
+}
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  padding: 9rem 3rem 5rem;
+  position: relative; overflow: hidden;
+  max-width: 1400px; margin: 0 auto;
+}
+.hero-bg {
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse 60% 50% at 75% 50%, rgba(212,175,95,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 15% 70%, rgba(255,85,51,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 30% 30% at 50% 10%, rgba(45,212,191,0.04) 0%, transparent 50%);
+}
+.noise {
+  position: fixed; inset: 0; z-index: -1; opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+
+.hero-text { position: relative; z-index: 2; }
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 0.7rem;
+  padding: 0.4rem 1rem; border-radius: 2rem;
+  background: rgba(212,175,95,0.08); border: 1px solid var(--border-gold);
+  font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 2rem;
+  animation: fadeUp 0.7s ease both;
+}
+.live-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+  animation: livePulse 2s infinite;
+}
+@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+
+.hero h1 { animation: fadeUp 0.7s 0.1s ease both; margin-bottom: 0.4rem; }
+.hero h1 .line2 { display: block; padding-left: 3rem; }
+.hero-sub {
+  font-size: 1.05rem; color: var(--muted); line-height: 1.75;
+  max-width: 480px; margin: 1.8rem 0 2.5rem;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeUp 0.7s 0.3s ease both; }
+.hero-stats {
+  display: flex; gap: 0; margin-top: 4rem;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden; animation: fadeUp 0.7s 0.4s ease both;
+  width: fit-content;
+}
+.hstat {
+  padding: 1.2rem 2rem; position: relative;
+  border-right: 1px solid var(--border);
+}
+.hstat:last-child { border-right: none; }
+.hstat-num {
+  font-family: var(--font-display);
+  font-size: 2.2rem; font-weight: 700; color: var(--gold); line-height: 1;
+}
+.hstat-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.2rem; }
+
+/* Hero cards mosaic */
+.hero-mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.9rem;
+  animation: fadeUp 0.8s 0.15s ease both;
+  position: relative; z-index: 2;
+  padding-left: 2rem;
+}
+.mosaic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s;
+  cursor: pointer;
+}
+.mosaic-card:hover { transform: translateY(-8px) scale(1.01); box-shadow: var(--shadow-lg); }
+.mosaic-card.tall { grid-row: span 2; }
+.mc-art {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem; position: relative;
+}
+.mc-art.h280 { height: 280px; }
+.mc-art.h130 { height: 130px; }
+.mc-bg-1 { background: linear-gradient(145deg, #16052a, #4a1060, #a020a0); }
+.mc-bg-2 { background: linear-gradient(145deg, #051620, #105044, #20a090); }
+.mc-bg-3 { background: linear-gradient(145deg, #201005, #5a3010, #c07030); }
+.mc-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 1rem 0.9rem 0.8rem;
+  background: linear-gradient(transparent, rgba(5,5,10,0.92));
+}
+.mc-type { font-size: 0.65rem; color: var(--gold); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.15rem; }
+.mc-name { font-family: var(--font-display); font-size: 1rem; font-weight: 600; }
+.mc-fee { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+.avail-on { color: #4ade80; }
+
+/* ════════════════════════════════════════
+   MARQUEE
+════════════════════════════════════════ */
+.marquee-strip {
+  background: var(--deep); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 1rem 0; overflow: hidden;
+}
+.marquee-track {
+  display: flex; gap: 3rem;
+  animation: marquee 22s linear infinite;
+  width: max-content;
+}
+.marquee-item {
+  display: flex; align-items: center; gap: 0.7rem;
+  font-size: 0.78rem; color: var(--muted); white-space: nowrap;
+  font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.marquee-dot { color: var(--gold); font-size: 0.5rem; }
+@keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* ════════════════════════════════════════
+   HOW IT WORKS
+════════════════════════════════════════ */
+.flow-section { background: var(--deep); }
+.flow-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem;
+  margin-top: 3.5rem; position: relative;
+}
+.flow-connector {
+  position: absolute; top: 2.8rem; left: calc(12.5% + 1rem); right: calc(12.5% + 1rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-bright), var(--gold), transparent);
+  z-index: 0;
+}
+.flow-step {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.8rem 1.5rem;
+  position: relative; z-index: 1;
+  transition: border-color .3s, transform .3s;
+}
+.flow-step:hover { border-color: var(--border-gold); transform: translateY(-5px); }
+.step-n {
+  font-family: var(--font-display); font-size: 4rem; font-weight: 700;
+  color: rgba(212,175,95,0.1); position: absolute; top: 0.3rem; right: 1rem;
+  line-height: 1; pointer-events: none;
+}
+.step-ico { font-size: 1.8rem; margin-bottom: 1rem; display: block; }
+.step-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+.step-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
+
+/* ════════════════════════════════════════
+   ARTISTS GRID (Browse Page)
+════════════════════════════════════════ */
+.browse-hero {
+  padding: 9rem 3rem 3rem;
+  background: var(--deep);
+  border-bottom: 1px solid var(--border);
+}
+.browse-filters {
+  display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center;
+  margin-top: 2rem;
+}
+.filter-pill {
+  padding: 0.45rem 1.1rem; border-radius: 2rem;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; font-family: var(--font-ui);
+  letter-spacing: 0.05em;
+}
+.filter-pill:hover { border-color: rgba(255,255,255,0.25); color: var(--cream); }
+.filter-pill.active { background: var(--gold); color: var(--void); border-color: var(--gold); }
+
+.search-bar {
+  display: flex; align-items: center; gap: 0.8rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 3rem; padding: 0.6rem 1.2rem; width: 300px;
+  transition: border-color .2s;
+}
+.search-bar:focus-within { border-color: var(--border-gold); }
+.search-bar input {
+  background: none; border: none; outline: none;
+  color: var(--cream); font-family: var(--font-ui); font-size: 0.85rem;
+  width: 100%;
+}
+.search-bar input::placeholder { color: var(--muted); }
+
+.artist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.4rem; margin-top: 2.5rem;
+}
+.artist-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s, border-color .3s;
+  cursor: pointer;
+}
+.artist-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--border-gold); }
+.card-art {
+  height: 200px; display: flex; align-items: center;
+  justify-content: center; font-size: 4rem; position: relative;
+}
+.card-badge {
+  position: absolute; top: 1rem; right: 1rem;
+  padding: 0.25rem 0.7rem; border-radius: 1.5rem;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.15);
+}
+.badge-top { color: var(--gold-bright); border-color: rgba(212,175,95,0.4); }
+.badge-trending { color: var(--ember); border-color: rgba(255,85,51,0.4); }
+.badge-new { color: var(--teal); border-color: rgba(45,212,191,0.4); }
+.card-verified {
+  position: absolute; top: 1rem; left: 1rem;
+  background: rgba(45,212,191,0.2); border: 1px solid rgba(45,212,191,0.4);
+  color: var(--teal); border-radius: 50%; width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+}
+.card-body { padding: 1.4rem; }
+.card-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; margin-bottom: 0.15rem; }
+.card-genre { font-size: 0.75rem; color: var(--gold); letter-spacing: 0.06em; margin-bottom: 1rem; }
+.card-meta { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 1.1rem; }
+.meta-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--muted); }
+.meta-ico { font-size: 0.85rem; width: 18px; text-align: center; }
+.avail-tag { display: inline-flex; align-items: center; gap: 0.35rem; }
+.dot-green { color: #4ade80; font-size: 0.65rem; }
+.dot-yellow { color: #fbbf24; font-size: 0.65rem; }
+.card-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.tag {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  padding: 0.2rem 0.6rem; border-radius: 1rem;
+  font-size: 0.7rem; color: var(--muted);
+}
+.card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 1rem; border-top: 1px solid var(--border);
+}
+.fee-big { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+.fee-unit { font-family: var(--font-ui); font-size: 0.72rem; color: var(--muted); font-weight: 400; margin-left: 0.2rem; }
+.card-rating { display: flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; color: var(--gold); }
+
+/* ════════════════════════════════════════
+   ARTIST PROFILE PAGE
+════════════════════════════════════════ */
+.profile-page { padding: 8rem 3rem 5rem; }
+.profile-inner { max-width: 1100px; margin: 0 auto; }
+.profile-header {
+  display: grid; grid-template-columns: 1fr 1.4fr; gap: 4rem;
+  align-items: start; margin-bottom: 4rem;
+}
+.profile-art {
+  border-radius: 1.5rem; overflow: hidden;
+  height: 420px; display: flex; align-items: center;
+  justify-content: center; font-size: 8rem;
+  border: 1px solid var(--border); position: relative;
+}
+.profile-info { padding-top: 0.5rem; }
+.profile-name { margin-bottom: 0.3rem; }
+.profile-genre { font-size: 0.85rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.5rem; }
+.profile-bio {
+  font-family: var(--font-display); font-size: 1.15rem; line-height: 1.8;
+  color: rgba(240,235,224,0.8); margin-bottom: 2rem; font-style: italic;
+}
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.info-chip {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.9rem 1.1rem;
+}
+.info-chip-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.3rem; }
+.info-chip-value { font-size: 0.92rem; font-weight: 600; }
+.info-chip-value.gold { color: var(--gold); }
+.profile-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.profile-tag {
+  background: rgba(212,175,95,0.08); border: 1px solid var(--border-gold);
+  padding: 0.3rem 0.9rem; border-radius: 2rem;
+  font-size: 0.78rem; color: var(--gold);
+}
+.avail-slots { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.slot-pill {
+  background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.25);
+  color: var(--teal); padding: 0.25rem 0.8rem; border-radius: 1.5rem;
+  font-size: 0.75rem;
+}
+.day-pill {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 0.2rem 0.6rem; border-radius: 1rem;
+  font-size: 0.73rem; color: var(--cream);
+}
+.recent-work { margin-top: 2rem; }
+.work-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 0; border-bottom: 1px solid var(--border);
+}
+.work-item:last-child { border-bottom: none; }
+.work-title { font-weight: 600; }
+.work-meta { font-size: 0.78rem; color: var(--muted); }
+.work-type {
+  font-size: 0.72rem; color: var(--teal); letter-spacing: 0.08em;
+  text-transform: uppercase; background: rgba(45,212,191,0.08);
+  border: 1px solid rgba(45,212,191,0.2); padding: 0.2rem 0.6rem; border-radius: 1rem;
+}
+
+/* Booking Card Sidebar */
+.booking-sidebar {
+  background: var(--surface); border: 1px solid var(--border-gold);
+  border-radius: 1.5rem; padding: 2rem; position: sticky; top: 7rem;
+}
+.booking-sidebar-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3rem; }
+.booking-price { font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; color: var(--gold); }
+.booking-price span { font-size: 1rem; color: var(--muted); }
+.form-field { margin-bottom: 1.1rem; }
+.form-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem; display: block; }
+.form-input {
+  width: 100%; background: var(--raised); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.7rem 1rem;
+  color: var(--cream); font-family: var(--font-ui); font-size: 0.88rem;
+  outline: none; transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--border-gold); }
+.form-input option { background: var(--raised); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.deposit-note {
+  background: rgba(212,175,95,0.07); border: 1px solid var(--border-gold);
+  border-radius: 8px; padding: 0.8rem; font-size: 0.78rem;
+  color: var(--muted); margin-bottom: 1rem; line-height: 1.5;
+}
+.deposit-note strong { color: var(--gold); }
+
+/* Two-col layout for profile page */
+.profile-layout { display: grid; grid-template-columns: 1fr 360px; gap: 3rem; align-items: start; }
+
+/* ════════════════════════════════════════
+   BOOKING SUCCESS
+════════════════════════════════════════ */
+.success-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.success-card {
+  background: var(--surface); border: 1px solid var(--border-gold);
+  border-radius: 2rem; padding: 3.5rem; text-align: center; max-width: 520px;
+}
+.success-icon { font-size: 4rem; margin-bottom: 1.5rem; }
+.success-id {
+  font-family: var(--font-mono); font-size: 1.1rem; color: var(--gold);
+  background: rgba(212,175,95,0.1); padding: 0.5rem 1.5rem; border-radius: 2rem;
+  display: inline-block; margin-bottom: 1.5rem; letter-spacing: 0.1em;
+}
+
+/* ════════════════════════════════════════
+   REGISTER ARTIST PAGE
+════════════════════════════════════════ */
+.register-page { padding: 8rem 3rem 5rem; }
+.register-inner { max-width: 700px; margin: 0 auto; }
+.form-section { margin-bottom: 2.5rem; }
+.form-section-title { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; color: var(--gold); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+textarea.form-input { resize: vertical; min-height: 100px; }
+
+/* ════════════════════════════════════════
+   FEATURES SECTION
+════════════════════════════════════════ */
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.2rem; margin-top: 3rem; }
+.feature-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.8rem;
+  transition: border-color .3s, transform .3s;
+}
+.feature-card:hover { border-color: var(--border-gold); transform: translateY(-4px); }
+.feature-ico { font-size: 2rem; margin-bottom: 1rem; }
+.feature-title { font-weight: 700; margin-bottom: 0.5rem; }
+.feature-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.65; }
+
+/* ════════════════════════════════════════
+   CTA SECTION
+════════════════════════════════════════ */
+.cta-band {
+  background: linear-gradient(135deg, var(--raised) 0%, #1a0a2e 50%, var(--raised) 100%);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 6rem 3rem; text-align: center; position: relative; overflow: hidden;
+}
+.cta-band::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(212,175,95,0.08) 0%, transparent 70%);
+}
+.cta-band > * { position: relative; z-index: 1; }
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+.footer {
+  background: var(--void); padding: 3rem;
+  border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 2rem;
+}
+.footer-logo { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+.footer-logo span { color: var(--ember); font-style: italic; }
+.footer-center { text-align: center; font-size: 0.78rem; color: var(--muted); }
+.footer-links { display: flex; gap: 1.5rem; justify-content: flex-end; }
+.footer-links a { color: var(--muted); text-decoration: none; font-size: 0.78rem; transition: color .2s; }
+.footer-links a:hover { color: var(--cream); }
+
+/* ════════════════════════════════════════
+   LOADING / TOAST
+════════════════════════════════════════ */
+.loading { display: flex; justify-content: center; padding: 4rem; }
+.spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed; bottom: 2rem; right: 2rem;
+  background: var(--surface); border: 1px solid var(--border-gold);
+  color: var(--cream); padding: 1rem 1.5rem; border-radius: var(--radius);
+  font-size: 0.88rem; z-index: 9999;
+  animation: toastIn .3s ease, toastOut .3s ease 2.7s forwards;
+  max-width: 340px; box-shadow: var(--shadow-lg);
+}
+.toast.error { border-color: rgba(255,85,51,0.5); }
+@keyframes toastIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { to{opacity:0;transform:translateY(16px)} }
+
+/* ════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(28px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.reveal { opacity:0; transform:translateY(30px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity:1; transform:translateY(0); }
+
+/* Color palettes for artist cards */
+.pal-purple { background: linear-gradient(145deg, #16052a, #4a1060, #a020a0); }
+.pal-teal   { background: linear-gradient(145deg, #051620, #105044, #20a090); }
+.pal-amber  { background: linear-gradient(145deg, #201005, #5a3010, #c07030); }
+.pal-navy   { background: linear-gradient(145deg, #050a20, #103070, #2050c0); }
+.pal-rose   { background: linear-gradient(145deg, #200510, #601040, #c02080); }
+.pal-forest { background: linear-gradient(145deg, #051505, #205020, #50a050); }
+
+/* ════════════════════════════════════════
+   AUTH MODAL
+════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  z-index: 500; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+  animation: fadeUp .3s ease;
+}
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border-gold);
+  border-radius: 1.5rem; padding: 2.5rem; width: 420px; max-width: 95vw;
+  position: relative;
+}
+.modal-close {
+  position: absolute; top: 1.2rem; right: 1.2rem;
+  background: none; border: none; color: var(--muted);
+  font-size: 1.3rem; cursor: pointer; transition: color .2s;
+}
+.modal-close:hover { color: var(--cream); }
+.modal-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.3rem; }
+.modal-sub { font-size: 0.83rem; color: var(--muted); margin-bottom: 2rem; }
+.modal-tabs { display: flex; gap: 0; margin-bottom: 2rem; border: 1px solid var(--border); border-radius: 3rem; overflow: hidden; }
+.modal-tab {
+  flex: 1; padding: 0.6rem; text-align: center;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+  color: var(--muted); background: transparent; border: none;
+  font-family: var(--font-ui); letter-spacing: 0.06em; transition: all .2s;
+}
+.modal-tab.active { background: var(--gold); color: var(--void); }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="hero-bg"></div>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav id="mainNav">
+  <div class="nav-logo" onclick="navigate('home')">ART<span>WAVE</span></div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="navigate('browse')" id="nl-browse">Artists</a></li>
+    <li><a href="#" onclick="navigate('home'); setTimeout(()=>document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'}),100)" id="nl-how">How It Works</a></li>
+    <li><a href="#" onclick="navigate('register')" id="nl-register">For Artists</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-nav btn-ghost-nav" id="loginBtn" onclick="openAuthModal()">Log In</button>
+    <button class="btn-nav btn-gold" onclick="navigate('register')">Register Act</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ PAGE: HOME ═══════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section style="padding:0; overflow:hidden;">
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-kicker">
+          <span class="live-dot"></span>
+          Live Talent Marketplace · 2,400+ Artists
+        </div>
+        <h1 class="display-xl">
+          Where <em>Artists</em>
+          <span class="line2">Meet Their <span class="ember">Stage</span></span>
+        </h1>
+        <p class="hero-sub">Discover, preview, and book musicians, dancers, bands, and magicians — with full transparency on fees, availability, locations, and real creative work.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="navigate('browse')">Explore Artists →</button>
+          <button class="btn btn-outline" onclick="navigate('register')">Register Your Act</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat">
+            <div class="hstat-num" id="stat-artists">2,400+</div>
+            <div class="hstat-label">Artists</div>
+          </div>
+          <div class="hstat">
+            <div class="hstat-num" id="stat-cities">38</div>
+            <div class="hstat-label">Cities</div>
+          </div>
+          <div class="hstat">
+            <div class="hstat-num">12K+</div>
+            <div class="hstat-label">Bookings</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-mosaic">
+        <div class="mosaic-card tall" onclick="navigate('artist','luna-voss')">
+          <div class="mc-art h280 mc-bg-1">
+            🎸
+            <div class="mc-overlay">
+              <div class="mc-type">Musician</div>
+              <div class="mc-name">Luna Voss</div>
+              <div class="mc-fee"><span class="avail-on">● </span>₹8,000 / event</div>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic-card" onclick="navigate('artist','aria-krishnamurthy')">
+          <div class="mc-art h130 mc-bg-2">
+            💃
+            <div class="mc-overlay">
+              <div class="mc-type">Dancer</div>
+              <div class="mc-name">Aria K.</div>
+              <div class="mc-fee">₹5,500 / hr</div>
+            </div>
+          </div>
+        </div>
+        <div class="mosaic-card" onclick="navigate('artist','zephyr-the-great')">
+          <div class="mc-art h130 mc-bg-3">
+            🎩
+            <div class="mc-overlay">
+              <div class="mc-type">Magician</div>
+              <div class="mc-name">Zephyr</div>
+              <div class="mc-fee">₹12,000 / show</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section flow-section" id="how-it-works">
+    <div class="section-inner">
+      <div class="section-eyebrow">The Process</div>
+      <div class="display-md">From Discovery to <em>Performance</em></div>
+      <div class="section-divider"></div>
+      <div class="flow-grid">
+        <div class="flow-connector"></div>
+        <div class="flow-step reveal">
+          <div class="step-n">01</div>
+          <span class="step-ico">🔍</span>
+          <div class="step-title">Browse & Filter</div>
+          <div class="step-desc">Search by city, art form, fee range, availability, and event type. See real work samples and verified profiles.</div>
+        </div>
+        <div class="flow-step reveal">
+          <div class="step-n">02</div>
+          <span class="step-ico">📋</span>
+          <div class="step-title">Review Profile</div>
+          <div class="step-desc">Deep-dive into bios, performance reels, testimonials, available time slots, and transparent fee structures.</div>
+        </div>
+        <div class="flow-step reveal">
+          <div class="step-n">03</div>
+          <span class="step-ico">📅</span>
+          <div class="step-title">Pick a Slot</div>
+          <div class="step-desc">Select a date, time, and duration. See real-time availability and travel coverage zones for each artist.</div>
+        </div>
+        <div class="flow-step reveal">
+          <div class="step-n">04</div>
+          <span class="step-ico">🎉</span>
+          <div class="step-title">Confirm & Enjoy</div>
+          <div class="step-desc">Secure your booking with a 30% deposit. Artist is notified instantly. Your event is set — go enjoy it.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED ARTISTS -->
+  <section class="section">
+    <div class="section-inner">
+      <div class="section-eyebrow">Featured Talent</div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+        <div class="display-md">Meet the <em>Artists</em></div>
+        <button class="btn btn-outline btn-sm" onclick="navigate('browse')">View All →</button>
+      </div>
+      <div class="section-divider"></div>
+      <div class="artist-grid" id="homeArtistGrid">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" style="background:var(--deep)">
+    <div class="section-inner">
+      <div class="section-eyebrow">Why ARTWAVE</div>
+      <div class="display-md">Everything You Need, <em>Nothing You Don't</em></div>
+      <div class="section-divider"></div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-ico">📍</div>
+          <div class="feature-title">Location Intelligence</div>
+          <div class="feature-desc">See exactly which cities, zones, and venues each artist covers. Travel fees disclosed upfront — no surprises.</div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-ico">🕐</div>
+          <div class="feature-title">Live Availability</div>
+          <div class="feature-desc">Real-time scheduling with morning, afternoon, and evening slots. No back-and-forth emails or guesswork.</div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-ico">🎬</div>
+          <div class="feature-title">Portfolio & Reels</div>
+          <div class="feature-desc">Video clips, audio samples, and photo galleries of recent work. Judge the art before you book the artist.</div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-ico">⭐</div>
+          <div class="feature-title">Verified Reviews</div>
+          <div class="feature-desc">Post-event ratings from real event organisers only. Every star is earned, every review is authentic.</div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-ico">💰</div>
+          <div class="feature-title">Transparent Fees</div>
+          <div class="feature-desc">Flat event rates or hourly pricing — always visible. Deposit-based booking protects both sides.</div>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-ico">🛡️</div>
+          <div class="feature-title">Artist Verification</div>
+          <div class="feature-desc">Every artist is reviewed by our team before going live. Quality is our editorial standard.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-band">
+    <div class="section-eyebrow" style="text-align:center">Join ARTWAVE</div>
+    <div class="display-lg" style="text-align:center;margin-bottom:1rem;">Are You a <em>Performer?</em></div>
+    <p style="color:var(--muted);max-width:500px;margin:0 auto 2.5rem;text-align:center;">Join thousands of artists already getting discovered and booked through ARTWAVE — zero commission on your first 5 gigs.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="navigate('register')">Register as Artist →</button>
+      <button class="btn btn-outline" onclick="navigate('browse')">Browse Artists</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">ART<span>WAVE</span></div>
+    <div class="footer-center">© 2026 ARTWAVE Agency · All rights reserved</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════ PAGE: BROWSE ═══════════════ -->
+<div class="page" id="page-browse">
+  <div class="browse-hero">
+    <div style="max-width:1280px;margin:0 auto;">
+      <div class="section-eyebrow">Discover</div>
+      <div class="display-lg">All <em>Artists</em></div>
+      <div class="browse-filters" style="margin-top:1.5rem;">
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="Search name, city, genre…" oninput="filterArtists()">
+        </div>
+        <button class="filter-pill active" data-type="All" onclick="setTypeFilter('All')">All</button>
+        <button class="filter-pill" data-type="Musician" onclick="setTypeFilter('Musician')">🎵 Musicians</button>
+        <button class="filter-pill" data-type="Dancer" onclick="setTypeFilter('Dancer')">💃 Dancers</button>
+        <button class="filter-pill" data-type="Magician" onclick="setTypeFilter('Magician')">🎩 Magicians</button>
+        <button class="filter-pill" data-type="Band" onclick="setTypeFilter('Band')">🎺 Bands</button>
+        <select class="filter-pill active" id="sortSelect" onchange="filterArtists()" style="cursor:pointer;">
+          <option value="">Sort By</option>
+          <option value="rating">⭐ Rating</option>
+          <option value="fee_asc">₹ Low to High</option>
+          <option value="fee_desc">₹ High to Low</option>
+          <option value="bookings">🔥 Most Booked</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <section class="section" style="padding-top:2.5rem;">
+    <div class="section-inner">
+      <div id="browseResultCount" style="font-size:0.82rem;color:var(--muted);margin-bottom:1rem;"></div>
+      <div class="artist-grid" id="browseArtistGrid">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════ PAGE: ARTIST PROFILE ═══════════════ -->
+<div class="page" id="page-artist">
+  <div class="profile-page">
+    <div class="profile-inner">
+      <button class="btn btn-outline btn-sm" onclick="navigate('browse')" style="margin-bottom:2rem;">← Back to Artists</button>
+      <div id="profileContent"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE: BOOKING SUCCESS ═══════════════ -->
+<div class="page" id="page-success">
+  <div class="success-page">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <div class="display-md" style="margin-bottom:0.5rem;">Booking <em>Confirmed!</em></div>
+      <p style="color:var(--muted);margin-bottom:1.5rem;">Your artist has been notified. Check your email for confirmation details.</p>
+      <div class="success-id" id="successId">AW-XXXXXXXX</div>
+      <div style="background:var(--raised);border-radius:var(--radius);padding:1.2rem;text-align:left;margin-bottom:2rem;" id="successDetails"></div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+        <button class="btn btn-secondary" onclick="navigate('browse')">Browse More Artists</button>
+        <button class="btn btn-outline" onclick="navigate('home')">Go Home</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGE: REGISTER ARTIST ═══════════════ -->
+<div class="page" id="page-register">
+  <div class="register-page">
+    <div class="register-inner">
+      <div class="section-eyebrow">Join ARTWAVE</div>
+      <div class="display-lg" style="margin-bottom:0.5rem;">Register Your <em>Act</em></div>
+      <p style="color:var(--muted);margin-bottom:3rem;">Fill in your details and get discovered by thousands of event organisers across India.</p>
+
+      <div id="registerForm">
+        <div class="form-section">
+          <div class="form-section-title">01 — Personal Info</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Full Name / Stage Name *</label>
+              <input class="form-input" id="reg-name" type="text" placeholder="e.g. Luna Voss">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Art Type *</label>
+              <select class="form-input" id="reg-type">
+                <option value="">Select type</option>
+                <option>Musician</option><option>Dancer</option>
+                <option>Band</option><option>Magician</option>
+                <option>Comedian</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Genre / Specialty *</label>
+              <input class="form-input" id="reg-genre" type="text" placeholder="e.g. Indie Folk, Bharatanatyam">
+            </div>
+            <div class="form-field">
+              <label class="form-label">City *</label>
+              <input class="form-input" id="reg-city" type="text" placeholder="e.g. Mumbai">
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Bio — Your Story *</label>
+            <textarea class="form-input" id="reg-bio" placeholder="Tell us about yourself, your journey, your style…"></textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">02 — Fees & Availability</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Base Fee (₹) *</label>
+              <input class="form-input" id="reg-fee" type="number" placeholder="e.g. 8000">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Fee Unit *</label>
+              <select class="form-input" id="reg-fee-unit">
+                <option value="event">Per Event</option>
+                <option value="hr">Per Hour</option>
+                <option value="show">Per Show</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Min Duration (hrs)</label>
+              <input class="form-input" id="reg-dur-min" type="number" placeholder="1">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Max Duration (hrs)</label>
+              <input class="form-input" id="reg-dur-max" type="number" placeholder="4">
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Travel Zones (comma-separated cities)</label>
+            <input class="form-input" id="reg-zones" type="text" placeholder="Mumbai, Pune, Goa, Nashik">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Tags (comma-separated)</label>
+            <input class="form-input" id="reg-tags" type="text" placeholder="Weddings, Corporate, Cafés, Festivals">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">03 — Account</div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">Email *</label>
+              <input class="form-input" id="reg-email" type="email" placeholder="you@example.com">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Password *</label>
+              <input class="form-input" id="reg-password" type="password" placeholder="Minimum 8 characters">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Instagram Handle</label>
+              <input class="form-input" id="reg-instagram" type="text" placeholder="@yourhandle">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Group Size</label>
+              <input class="form-input" id="reg-group" type="number" value="1" min="1" max="30">
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" style="width:100%;justify-content:center;font-size:1rem;padding:1rem;" onclick="submitArtistRegistration()">
+          Submit Registration →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ AUTH MODAL ═══════════════ -->
+<div class="modal-overlay" id="authModal" style="display:none;" onclick="closeAuthModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-title">Welcome to <em>ARTWAVE</em></div>
+    <div class="modal-sub">Sign in or create an account to book artists.</div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchAuthTab('login')">Log In</button>
+      <button class="modal-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <div id="authFormLogin">
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="login-email" type="email" placeholder="test@artwave.in">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="login-password" type="password" placeholder="password123">
+      </div>
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:0.5rem;" onclick="doLogin()">Log In →</button>
+      <p style="font-size:0.75rem;color:var(--muted);text-align:center;margin-top:1rem;">Demo: test@artwave.in / password123</p>
+    </div>
+    <div id="authFormSignup" style="display:none;">
+      <div class="form-field">
+        <label class="form-label">Name</label>
+        <input class="form-input" id="signup-name" type="text" placeholder="Your Name">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="signup-email" type="email" placeholder="you@example.com">
+      </div>
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="signup-password" type="password" placeholder="Min 8 characters">
+      </div>
+      <button class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:0.5rem;" onclick="doSignup()">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+const API = 'http://localhost:5000/api';
+
+// ═══════════════════════════════════════════════
+// IN-MEMORY FALLBACK DATA (when backend is offline)
+// ═══════════════════════════════════════════════
+const FALLBACK_ARTISTS = [
+  { id:'a1',name:'Luna Voss',slug:'luna-voss',type:'Musician',genre:'Indie Folk / Singer-Songwriter',emoji:'🎸',city:'Mumbai',state:'Maharashtra',travelZones:['Mumbai','Pune','Nashik','Goa'],fee:{amount:8000,unit:'event',currency:'₹'},duration:{min:1,max:4,unit:'hrs'},rating:4.9,reviewCount:87,bookingCount:143,badge:'Top Rated',tags:['Acoustic','Weddings','Cafés','Festivals'],availability:{days:['Mon','Wed','Fri','Sat','Sun'],slots:['Morning (9am–12pm)','Evening (6pm–10pm)']},verified:true,bio:'Luna grew up listening to the rain tap against her window in Shimla. That rhythm became the backbone of her music — intimate, weathered, and searingly honest.',recentWork:[{title:'Bloom Sessions EP',year:2024,type:'Studio Recording'},{title:'Kala Ghoda Arts Festival',year:2024,type:'Live Performance'}],requirements:'PA system, 1 microphone stand, power outlet',cancellationPolicy:'50% refund up to 7 days before event',instagram:'@lunavossmusic' },
+  { id:'a2',name:'Aria Krishnamurthy',slug:'aria-krishnamurthy',type:'Dancer',genre:'Classical Bharatanatyam · Fusion',emoji:'💃',city:'Bengaluru',state:'Karnataka',travelZones:['Bengaluru','Mysuru','Chennai','Hyderabad'],fee:{amount:5500,unit:'hr',currency:'₹'},duration:{min:0.5,max:2,unit:'hrs'},rating:4.8,reviewCount:62,bookingCount:98,badge:'Trending',tags:['Corporate Events','Cultural Festivals','Stage Shows'],availability:{days:['Tue','Thu','Sat','Sun'],slots:['Afternoon (2pm–6pm)','Evening (6pm–9pm)']},verified:true,bio:'Trained under Guru Padma Subramaniam for 14 years, Aria has performed on stages from Chennai\'s Music Academy to Edinburgh\'s Festival Fringe.',recentWork:[{title:'Natyanjali Festival',year:2024,type:'Classical Concert'},{title:'TEDx Bengaluru',year:2024,type:'Corporate'}],requirements:'Sprung wooden floor preferred, changing room, mirror',cancellationPolicy:'30% refund up to 5 days before event',instagram:'@ariakdances' },
+  { id:'a3',name:'Zephyr the Great',slug:'zephyr-the-great',type:'Magician',genre:'Close-Up Magic · Mentalism',emoji:'🎩',city:'Delhi',state:'NCR',travelZones:['Delhi','Gurgaon','Noida','Agra','Jaipur'],fee:{amount:12000,unit:'show',currency:'₹'},duration:{min:0.75,max:3,unit:'hrs'},rating:4.7,reviewCount:45,bookingCount:71,badge:'New',tags:['Private Parties','Kids Events','Gala Nights','Corporate'],availability:{days:['Thu','Fri','Sat','Sun'],slots:['Evening (5pm–11pm)']},verified:true,bio:'Zephyr doesn\'t do tricks. He engineers wonder. A graduate of the Academie de Magie in Paris, Zephyr has baffled CEOs, children, and skeptics alike.',recentWork:[{title:'ITC Maurya New Year\'s Gala',year:2024,type:'Hotel Event'},{title:'Google India Offsite',year:2024,type:'Corporate'}],requirements:'Round tables for close-up work, good lighting',cancellationPolicy:'No refund within 3 days. 60% refund beyond that.',instagram:'@zephyrthegreat' },
+  { id:'a4',name:'The Brass Syndicate',slug:'the-brass-syndicate',type:'Band',genre:'Brass / Jazz / Funk',emoji:'🎺',city:'Kolkata',state:'West Bengal',travelZones:['Kolkata','Siliguri','Bhubaneswar'],fee:{amount:35000,unit:'event',currency:'₹'},duration:{min:1,max:5,unit:'hrs'},rating:4.9,reviewCount:112,bookingCount:189,badge:'Top Rated',tags:['Weddings','Baraat','Festivals','Outdoor Events'],availability:{days:['Fri','Sat','Sun'],slots:['Evening (5pm–11pm)','Night (9pm–2am)']},verified:true,bio:'Seven musicians. One unstoppable sound. The Brass Syndicate formed in the lanes of Kolkata\'s Park Street jazz scene and has since toured 12 cities.',recentWork:[{title:'Jio MAMI Film Festival',year:2024,type:'Festival'},{title:'Kolkata Jazz Festival',year:2023,type:'Jazz Concert'}],requirements:'Stage min 20x15ft, PA system, 3-phase power',cancellationPolicy:'40% refund up to 10 days before event',instagram:'@thebrasssyndicate' },
+  { id:'a5',name:'Kavya Nair',slug:'kavya-nair',type:'Dancer',genre:'Contemporary / Kathak Fusion',emoji:'🩰',city:'Pune',state:'Maharashtra',travelZones:['Pune','Mumbai','Nashik'],fee:{amount:7000,unit:'hr',currency:'₹'},duration:{min:1,max:2.5,unit:'hrs'},rating:4.6,reviewCount:34,bookingCount:52,badge:null,tags:['Stage Shows','Art Galleries','Cultural Events'],availability:{days:['Mon','Wed','Sat','Sun'],slots:['Morning (10am–1pm)','Evening (5pm–9pm)']},verified:true,bio:'Kavya\'s body speaks languages no tongue can pronounce. Trained in Kathak and contemporary, she has built a vocabulary of movement that is uniquely hers.',recentWork:[{title:'Prithvi Theatre Season',year:2024,type:'Theatre'},{title:'Pune Festival of Arts',year:2024,type:'Festival'}],requirements:'Sprung floor essential, sound system for 200+ pax',cancellationPolicy:'50% refund up to 7 days before event',instagram:'@kavyadances' },
+  { id:'a6',name:'DJ Neon Flux',slug:'dj-neon-flux',type:'Musician',genre:'Electronic / House / Techno',emoji:'🎛️',city:'Mumbai',state:'Maharashtra',travelZones:['Mumbai','Pune','Goa','Delhi'],fee:{amount:25000,unit:'show',currency:'₹'},duration:{min:2,max:6,unit:'hrs'},rating:4.8,reviewCount:95,bookingCount:167,badge:'Trending',tags:['Clubs','Festivals','Corporate After-Parties'],availability:{days:['Fri','Sat'],slots:['Night (9pm–4am)']},verified:true,bio:'Real name Rohan Mehta. He started mixing in a Dharavi recording studio at 16 with a pirated copy of FL Studio and a stolen dream.',recentWork:[{title:'Magnetic Fields 2024',year:2024,type:'Festival'},{title:'Percept NYE Mumbai',year:2023,type:"New Year's Event"}],requirements:'Pioneer CDJ-3000s, DJM-900NXS2, monitor speakers',cancellationPolicy:'No refunds. Rescheduling allowed once.',instagram:'@djneonflux' }
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let allArtists = [];
+let currentTypeFilter = 'All';
+let currentUser = null;
+let token = null;
+const PALETTES = ['pal-purple','pal-teal','pal-amber','pal-navy','pal-rose','pal-forest'];
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function navigate(page, param) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  window.scrollTo(0, 0);
+  if (page === 'artist' && param) loadArtistProfile(param);
+  if (page === 'browse') loadBrowseArtists();
+  if (page === 'home') loadHomeArtists();
+}
+
+// ═══════════════════════════════════════════════
+// API HELPERS
+// ═══════════════════════════════════════════════
+async function apiFetch(path, opts = {}) {
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(API + path, { ...opts, headers });
+    return await res.json();
+  } catch {
+    return null; // backend offline → use fallback
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ARTIST CARD RENDERER
+// ═══════════════════════════════════════════════
+function palFor(idx) { return PALETTES[idx % PALETTES.length]; }
+
+function badgeHtml(badge) {
+  if (!badge) return '';
+  const cls = badge === 'Top Rated' ? 'badge-top' : badge === 'Trending' ? 'badge-trending' : 'badge-new';
+  const icon = badge === 'Top Rated' ? '⭐' : badge === 'Trending' ? '🔥' : '✨';
+  return `<div class="card-badge ${cls}">${icon} ${badge}</div>`;
+}
+
+function artistCardHtml(a, idx) {
+  const avail = a.availability?.days?.length > 3
+    ? `<span class="dot-green">●</span> Available most days`
+    : `<span class="dot-yellow">●</span> Limited slots`;
+  return `
+    <div class="artist-card" onclick="navigate('artist','${a.slug}')">
+      <div class="card-art ${palFor(idx)}">
+        ${a.emoji}
+        ${a.verified ? '<div class="card-verified">✓</div>' : ''}
+        ${badgeHtml(a.badge)}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${a.name}</div>
+        <div class="card-genre">${a.genre}</div>
+        <div class="card-meta">
+          <div class="meta-row"><span class="meta-ico">📍</span>${a.city}, ${a.state}</div>
+          <div class="meta-row"><span class="meta-ico">⏱</span>${a.duration.min}–${a.duration.max} ${a.duration.unit}</div>
+          <div class="meta-row avail-tag">${avail}</div>
+        </div>
+        <div class="card-tags">${a.tags.slice(0,4).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div class="card-footer">
+          <div><span class="fee-big">${a.fee.currency}${a.fee.amount.toLocaleString()}</span><span class="fee-unit">/ ${a.fee.unit}</span></div>
+          <div class="card-rating">★ ${a.rating} <span style="color:var(--muted);">(${a.reviewCount})</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// HOME ARTISTS
+// ═══════════════════════════════════════════════
+async function loadHomeArtists() {
+  const data = await apiFetch('/artists');
+  const artists = data?.artists || FALLBACK_ARTISTS;
+  allArtists = data?.artists ? data.artists : FALLBACK_ARTISTS;
+
+  // Update stats
+  if (data) {
+    document.getElementById('stat-artists').textContent = data.total + '+';
+  }
+
+  const grid = document.getElementById('homeArtistGrid');
+  grid.innerHTML = artists.slice(0, 6).map((a, i) => artistCardHtml(a, i)).join('');
+  setupReveal();
+}
+
+// ═══════════════════════════════════════════════
+// BROWSE
+// ═══════════════════════════════════════════════
+async function loadBrowseArtists() {
+  const data = await apiFetch('/artists');
+  allArtists = data?.artists || FALLBACK_ARTISTS;
+  renderBrowseGrid(allArtists);
+}
+
+function renderBrowseGrid(artists) {
+  const grid = document.getElementById('browseArtistGrid');
+  const count = document.getElementById('browseResultCount');
+  if (!artists.length) {
+    grid.innerHTML = `<div style="text-align:center;color:var(--muted);padding:4rem;grid-column:1/-1;">No artists found. Try adjusting your filters.</div>`;
+    count.textContent = '0 artists found';
+    return;
+  }
+  count.textContent = `${artists.length} artist${artists.length !== 1 ? 's' : ''} found`;
+  grid.innerHTML = artists.map((a, i) => artistCardHtml(a, i)).join('');
+}
+
+function setTypeFilter(type) {
+  currentTypeFilter = type;
+  document.querySelectorAll('.filter-pill[data-type]').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.filter-pill[data-type="${type}"]`)?.classList.add('active');
+  filterArtists();
+}
+
+function filterArtists() {
+  const q = document.getElementById('searchInput')?.value?.toLowerCase() || '';
+  const sort = document.getElementById('sortSelect')?.value || '';
+  let filtered = [...allArtists];
+
+  if (currentTypeFilter !== 'All') {
+    filtered = filtered.filter(a => a.type === currentTypeFilter);
+  }
+  if (q) {
+    filtered = filtered.filter(a =>
+      a.name.toLowerCase().includes(q) ||
+      a.genre.toLowerCase().includes(q) ||
+      a.city.toLowerCase().includes(q) ||
+      a.tags.some(t => t.toLowerCase().includes(q))
+    );
+  }
+  if (sort === 'rating') filtered.sort((a,b) => b.rating - a.rating);
+  if (sort === 'fee_asc') filtered.sort((a,b) => a.fee.amount - b.fee.amount);
+  if (sort === 'fee_desc') filtered.sort((a,b) => b.fee.amount - a.fee.amount);
+  if (sort === 'bookings') filtered.sort((a,b) => b.bookingCount - a.bookingCount);
+
+  renderBrowseGrid(filtered);
+}
+
+// ═══════════════════════════════════════════════
+// ARTIST PROFILE
+// ═══════════════════════════════════════════════
+async function loadArtistProfile(slug) {
+  const el = document.getElementById('profileContent');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  const data = await apiFetch('/artists/' + slug);
+  const a = data || FALLBACK_ARTISTS.find(x => x.slug === slug);
+
+  if (!a) {
+    el.innerHTML = '<p style="color:var(--muted)">Artist not found.</p>';
+    return;
+  }
+
+  const palIdx = FALLBACK_ARTISTS.findIndex(x => x.slug === slug);
+  const pal = palFor(palIdx >= 0 ? palIdx : 0);
+
+  el.innerHTML = `
+    <div class="profile-layout">
+      <div>
+        <div class="profile-header" style="grid-template-columns:1fr;gap:2rem;">
+          <div class="profile-art ${pal}">${a.emoji}</div>
+          <div class="profile-info">
+            <div class="section-eyebrow">${a.type}${a.verified ? ' · ✓ Verified' : ''}</div>
+            <div class="display-md profile-name">${a.name}</div>
+            <div class="profile-genre">${a.genre}</div>
+            <div class="card-rating" style="margin-bottom:1.2rem;font-size:0.92rem;">
+              ★ ${a.rating} <span style="color:var(--muted);">(${a.reviewCount} reviews · ${a.bookingCount} bookings)</span>
+            </div>
+            <p class="profile-bio">"${a.bio}"</p>
+            <div class="profile-grid">
+              <div class="info-chip">
+                <div class="info-chip-label">📍 Location</div>
+                <div class="info-chip-value">${a.city}, ${a.state}</div>
+              </div>
+              <div class="info-chip">
+                <div class="info-chip-label">⏱ Duration</div>
+                <div class="info-chip-value">${a.duration.min}–${a.duration.max} ${a.duration.unit}</div>
+              </div>
+              <div class="info-chip">
+                <div class="info-chip-label">👥 Group Size</div>
+                <div class="info-chip-value">${a.groupSize === 1 ? 'Solo' : a.groupSize + ' members'}</div>
+              </div>
+              <div class="info-chip">
+                <div class="info-chip-label">🌐 Languages</div>
+                <div class="info-chip-value">${(a.languages || ['Hindi','English']).join(', ')}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-chip" style="margin-bottom:1.5rem;">
+          <div class="info-chip-label">🗺 Travel Zones</div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem;">
+            ${a.travelZones.map(z=>`<span class="day-pill">${z}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="info-chip" style="margin-bottom:1.5rem;">
+          <div class="info-chip-label">📅 Available Days</div>
+          <div class="avail-slots" style="margin-top:0.5rem;">
+            ${a.availability.days.map(d=>`<span class="day-pill">${d}</span>`).join('')}
+          </div>
+          <div class="avail-slots" style="margin-top:0.6rem;">
+            ${a.availability.slots.map(s=>`<span class="slot-pill">${s}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="info-chip" style="margin-bottom:1.5rem;">
+          <div class="info-chip-label">🎭 Event Types</div>
+          <div class="profile-tags" style="margin-top:0.5rem;margin-bottom:0;">
+            ${a.tags.map(t=>`<span class="profile-tag">${t}</span>`).join('')}
+          </div>
+        </div>
+
+        <div class="info-chip" style="margin-bottom:1.5rem;">
+          <div class="info-chip-label">🔧 Technical Requirements</div>
+          <div class="info-chip-value" style="font-size:0.85rem;font-weight:400;margin-top:0.3rem;">${a.requirements || 'Contact artist for details'}</div>
+        </div>
+
+        <div class="info-chip" style="margin-bottom:1.5rem;">
+          <div class="info-chip-label">📋 Cancellation Policy</div>
+          <div class="info-chip-value" style="font-size:0.85rem;font-weight:400;margin-top:0.3rem;">${a.cancellationPolicy || 'Contact artist'}</div>
+        </div>
+
+        <div class="recent-work">
+          <div class="section-eyebrow">Recent Work</div>
+          <div class="display-md" style="font-size:1.5rem;margin-bottom:1rem;">Performance <em>History</em></div>
+          ${(a.recentWork || []).map(w => `
+            <div class="work-item">
+              <div>
+                <div class="work-title">${w.title}</div>
+                <div class="work-meta">${w.year}</div>
+              </div>
+              <span class="work-type">${w.type}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- BOOKING SIDEBAR -->
+      <div>
+        <div class="booking-sidebar">
+          <div class="booking-sidebar-title">Book <em>${a.name.split(' ')[0]}</em></div>
+          <div class="booking-price">${a.fee.currency}${a.fee.amount.toLocaleString()}<span> / ${a.fee.unit}</span></div>
+          <div class="section-divider" style="margin:1rem 0;"></div>
+
+          <div class="form-field">
+            <label class="form-label">Your Name *</label>
+            <input class="form-input" id="bk-name" type="text" placeholder="Full name">
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Email *</label>
+              <input class="form-input" id="bk-email" type="email" placeholder="you@email.com">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Phone *</label>
+              <input class="form-input" id="bk-phone" type="tel" placeholder="+91 XXXXX">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Event Date *</label>
+              <input class="form-input" id="bk-date" type="date" min="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Time Slot *</label>
+              <select class="form-input" id="bk-time">
+                <option value="">Select slot</option>
+                ${a.availability.slots.map(s=>`<option value="${s}">${s}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Event Type *</label>
+            <select class="form-input" id="bk-event-type">
+              <option value="">Select event type</option>
+              ${a.tags.map(t=>`<option>${t}</option>`).join('')}
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">Duration (hrs)</label>
+              <input class="form-input" id="bk-duration" type="number" min="${a.duration.min}" max="${a.duration.max}" value="${a.duration.min}" step="0.5">
+            </div>
+            <div class="form-field">
+              <label class="form-label">Guest Count</label>
+              <input class="form-input" id="bk-guests" type="number" placeholder="e.g. 150">
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Event Location / Venue</label>
+            <input class="form-input" id="bk-location" type="text" placeholder="Venue name, city">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Special Requests</label>
+            <textarea class="form-input" id="bk-notes" placeholder="Any specific songs, requirements…" style="min-height:70px;resize:vertical;"></textarea>
+          </div>
+          <div class="deposit-note">
+            💡 A <strong>30% deposit</strong> (${a.fee.currency}${Math.round(a.fee.amount * 0.3).toLocaleString()}) secures your booking. Balance due on event day.
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:0.95rem;" onclick="submitBooking('${a.id}','${a.name}','${a.fee.currency}${a.fee.amount}/${a.fee.unit}')">
+            Confirm Booking →
+          </button>
+          ${a.instagram ? `<p style="text-align:center;margin-top:1rem;font-size:0.78rem;color:var(--muted);">📸 ${a.instagram}</p>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// BOOKING SUBMISSION
+// ═══════════════════════════════════════════════
+async function submitBooking(artistId, artistName, feeStr) {
+  const name = document.getElementById('bk-name').value.trim();
+  const email = document.getElementById('bk-email').value.trim();
+  const phone = document.getElementById('bk-phone').value.trim();
+  const date = document.getElementById('bk-date').value;
+  const time = document.getElementById('bk-time').value;
+  const eventType = document.getElementById('bk-event-type').value;
+
+  if (!name || !email || !phone || !date || !time || !eventType) {
+    showToast('Please fill all required fields.', true); return;
+  }
+
+  const payload = {
+    artistId,
+    clientName: name, clientEmail: email, clientPhone: phone,
+    eventDate: date, eventTime: time, eventType,
+    eventLocation: document.getElementById('bk-location').value,
+    durationHours: parseFloat(document.getElementById('bk-duration').value) || 1,
+    guestCount: parseInt(document.getElementById('bk-guests').value) || 0,
+    specialRequests: document.getElementById('bk-notes').value
+  };
+
+  const result = await apiFetch('/bookings', { method: 'POST', body: JSON.stringify(payload) });
+
+  // Show success (either from API or simulated)
+  const confirmId = result?.confirmationId || ('AW-' + Math.random().toString(36).substr(2,8).toUpperCase());
+  document.getElementById('successId').textContent = confirmId;
+  document.getElementById('successDetails').innerHTML = `
+    <div style="display:grid;gap:0.6rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+        <span style="color:var(--muted);">Artist</span><span>${artistName}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+        <span style="color:var(--muted);">Date</span><span>${new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+        <span style="color:var(--muted);">Time</span><span>${time}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+        <span style="color:var(--muted);">Fee</span><span style="color:var(--gold);">${feeStr}</span>
+      </div>
+    </div>
+  `;
+  navigate('success');
+}
+
+// ═══════════════════════════════════════════════
+// ARTIST REGISTRATION
+// ═══════════════════════════════════════════════
+async function submitArtistRegistration() {
+  const name = document.getElementById('reg-name').value.trim();
+  const type = document.getElementById('reg-type').value;
+  const genre = document.getElementById('reg-genre').value.trim();
+  const city = document.getElementById('reg-city').value.trim();
+  const bio = document.getElementById('reg-bio').value.trim();
+  const fee = document.getElementById('reg-fee').value;
+  const feeUnit = document.getElementById('reg-fee-unit').value;
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+
+  if (!name || !type || !genre || !city || !bio || !fee || !email || !password) {
+    showToast('Please fill all required fields.', true); return;
+  }
+
+  const tags = document.getElementById('reg-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const zones = document.getElementById('reg-zones').value.split(',').map(z=>z.trim()).filter(Boolean);
+
+  // Register user first
+  const authRes = await apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ name, email, password, role: 'artist' })
+  });
+
+  if (authRes?.token) {
+    token = authRes.token;
+    currentUser = authRes.user;
+  }
+
+  // Register artist
+  const artistPayload = {
+    name, type, genre, city, state: '', bio,
+    fee: { amount: parseInt(fee), unit: feeUnit, currency: '₹' },
+    tags, travelZones: zones,
+    duration: {
+      min: parseFloat(document.getElementById('reg-dur-min').value)||1,
+      max: parseFloat(document.getElementById('reg-dur-max').value)||4,
+      unit: 'hrs'
+    },
+    groupSize: parseInt(document.getElementById('reg-group').value)||1,
+    instagram: document.getElementById('reg-instagram').value,
+    availability: { days: ['Sat','Sun'], slots: ['Evening (5pm–10pm)'] }
+  };
+
+  await apiFetch('/artists', { method: 'POST', body: JSON.stringify(artistPayload) });
+  showToast('🎉 Registration submitted! Our team will review and verify your profile.');
+  setTimeout(() => navigate('home'), 2500);
+}
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function openAuthModal() {
+  document.getElementById('authModal').style.display = 'flex';
+}
+function closeAuthModal(e) {
+  if (!e || e.target.id === 'authModal' || e.currentTarget.classList.contains('modal-close')) {
+    document.getElementById('authModal').style.display = 'none';
+  }
+}
+function switchAuthTab(tab) {
+  document.querySelectorAll('.modal-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='signup')));
+  document.getElementById('authFormLogin').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('authFormSignup').style.display = tab === 'signup' ? 'block' : 'none';
+}
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+  const res = await apiFetch('/auth/login', { method:'POST', body: JSON.stringify({email,password}) });
+  if (res?.token) {
+    token = res.token; currentUser = res.user;
+    document.getElementById('loginBtn').textContent = res.user.name.split(' ')[0];
+    closeAuthModal(); showToast('Welcome back, ' + res.user.name + '!');
+  } else {
+    // Demo mode
+    showToast('Logged in (demo mode)');
+    document.getElementById('loginBtn').textContent = 'You';
+    closeAuthModal();
+  }
+}
+async function doSignup() {
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
+  const res = await apiFetch('/auth/register', { method:'POST', body: JSON.stringify({name,email,password}) });
+  if (res?.token) {
+    token = res.token; currentUser = res.user;
+    document.getElementById('loginBtn').textContent = name.split(' ')[0];
+    closeAuthModal(); showToast('Account created! Welcome to ARTWAVE 🎉');
+  } else {
+    showToast('Account created (demo mode)!');
+    closeAuthModal();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function showToast(msg, isError = false) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ═══════════════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════════════
+function setupReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+// ═══════════════════════════════════════════════
+// MARQUEE
+// ═══════════════════════════════════════════════
+function buildMarquee() {
+  const items = [
+    '🎸 Musicians', '💃 Dancers', '🎩 Magicians', '🎺 Bands',
+    '📍 38 Cities', '⭐ Verified Artists', '🎤 Live Bookings',
+    '🥁 Percussionists', '🎻 Violinists', '🪘 Folk Artists',
+    '🎭 Theatre Performers', '🪄 Illusionists', '🎵 DJs'
+  ];
+  const track = document.getElementById('marqueeTrack');
+  const full = [...items, ...items];
+  track.innerHTML = full.map(i =>
+    `<span class="marquee-item"><span class="marquee-dot">●</span>${i}</span>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════
+// CURSOR
+// ═══════════════════════════════════════════════
+document.addEventListener('mousemove', e => {
+  document.body.style.setProperty('--cx', e.clientX + 'px');
+  document.body.style.setProperty('--cy', e.clientY + 'px');
+});
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildMarquee();
+  loadHomeArtists();
+  setupReveal();
+});
+</script>
+</body>
+</html>
